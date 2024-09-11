@@ -7,20 +7,28 @@ import (
 // Usage: echo <input_text> | your_program.sh -E <pattern>
 func main() {
 	line, pattern := readLineBoilerplate()
-	// line := []byte("pples")
-	// pattern := "[^a]"
+	// line := []byte("log")
+	// pattern := "^log"
 	ok := doGrep(line, pattern)
 	exitOnError(ok)
 	os.Exit(0)
 }
 
 func doGrep(line []byte, pattern string) bool {
+	startAnchor := false //start anchor asserts the regex will match from the very start of the line
+	if pattern[0] == '^' {
+		startAnchor = true
+		pattern = pattern[1:]
+	}
 	patLength := patternLength(pattern)
 	for idx, l := range line {
 		if patLength > len(line)-idx {
 			return false
 		}
 		match, err := match([]byte{l}, pattern)
+		if idx == 0 && startAnchor && !match {
+			return false
+		}
 		handleGenericError(err)
 		if match {
 			ok, err := matchMultipleCharacterClasses(line[idx:], pattern)
