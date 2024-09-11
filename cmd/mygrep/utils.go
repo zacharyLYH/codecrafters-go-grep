@@ -35,3 +35,10 @@ func readLineBoilerplate() ([]byte, string) {
 
 	return line, pattern
 }
+
+func startsAndEndsWith(s string, start, end rune) bool {
+	if len(s) < 2 {
+		return false
+	}
+	return rune(s[0]) == start && rune(s[len(s)-1]) == end
+}

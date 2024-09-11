@@ -54,3 +54,16 @@ func matchLine(line []byte, pattern string) (bool, error) {
 
 	return ok, nil
 }
+
+func matchCharacterGroup(line []byte, group string) (bool, error) {
+	charGrp := make(map[rune]bool)
+	for _, c := range group {
+		charGrp[c] = true
+	}
+	for _, l := range line {
+		if charGrp[rune(l)] {
+			return true, nil
+		}
+	}
+	return false, nil
+}
