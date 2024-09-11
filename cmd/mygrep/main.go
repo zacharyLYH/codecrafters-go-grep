@@ -12,6 +12,10 @@ func main() {
 		ok, err := matchDigit(line, pattern)
 		handleGenericError(err)
 		exitOnError(ok)
+	case "\\w":
+		ok, err := matchAlphanumeric(line, pattern)
+		handleGenericError(err)
+		exitOnError(ok)
 	default:
 		ok, err := matchLine(line, pattern)
 		handleGenericError(err)
