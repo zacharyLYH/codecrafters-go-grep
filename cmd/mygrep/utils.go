@@ -56,3 +56,28 @@ func patternLength(pattern string) int {
 
 	return length
 }
+
+func reverseBytes(line []byte) []byte {
+	left, right := 0, len(line)-1
+	for left < right {
+		// Swap elements
+		line[left], line[right] = line[right], line[left]
+		left++
+		right--
+	}
+	return line
+}
+
+// Function to reverse a string
+func reverseString(pattern string) string {
+	// Convert string to a slice of runes to handle multi-byte characters
+	runes := []rune(pattern)
+	left, right := 0, len(runes)-1
+	for left < right {
+		// Swap runes
+		runes[left], runes[right] = runes[right], runes[left]
+		left++
+		right--
+	}
+	return string(runes)
+}

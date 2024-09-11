@@ -7,7 +7,7 @@ import (
 func match(line []byte, pattern string) (bool, error) {
 	if pattern[0] == '\\' {
 		if pattern[:2] == "\\d" {
-			return matchDigit(line, pattern)
+			return matchDigit(line)
 		}
 		if pattern[:2] == "\\w" {
 			return matchAlphanumeric(line, pattern)
@@ -19,7 +19,7 @@ func match(line []byte, pattern string) (bool, error) {
 	return matchLine(line, pattern)
 }
 
-func matchDigit(line []byte, pattern string) (bool, error) {
+func matchDigit(line []byte) (bool, error) {
 	ok := false
 
 	for _, l := range line {
@@ -44,7 +44,7 @@ func matchAlphanumeric(line []byte, pattern string) (bool, error) {
 
 	//if not a alphabet character, might be a numeric character
 	if !ok {
-		ok, _ = matchDigit(line, pattern)
+		ok, _ = matchDigit(line)
 	}
 
 	return ok, nil

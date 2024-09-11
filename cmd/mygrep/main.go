@@ -15,10 +15,19 @@ func main() {
 }
 
 func doGrep(line []byte, pattern string) bool {
-	startAnchor := false //start anchor asserts the regex will match from the very start of the line
+	//Match the entire pattern from the front
 	if pattern[0] == '^' {
-		startAnchor = true
 		pattern = pattern[1:]
+		ok, err := matchMultipleCharacterClasses(line, pattern)
+		handleGenericError(err)
+		return ok
+	}
+	//Match the entire pattern from the back
+	if pattern[len(pattern)-1] == '$' {
+		pattern = pattern[:len(pattern)-1]
+		ok, err := matchMultipleCharacterClasses(reverseBytes(line), reverseString(pattern))
+		handleGenericError(err)
+		return ok
 	}
 	patLength := patternLength(pattern)
 	for idx, l := range line {
@@ -26,9 +35,6 @@ func doGrep(line []byte, pattern string) bool {
 			return false
 		}
 		match, err := match([]byte{l}, pattern)
-		if idx == 0 && startAnchor && !match {
-			return false
-		}
 		handleGenericError(err)
 		if match {
 			ok, err := matchMultipleCharacterClasses(line[idx:], pattern)
