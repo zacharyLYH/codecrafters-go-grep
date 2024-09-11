@@ -10,7 +10,7 @@ func match(line []byte, pattern string) (bool, error) {
 			return matchDigit(line)
 		}
 		if pattern[:2] == "\\w" {
-			return matchAlphanumeric(line, pattern)
+			return matchAlphanumeric(line)
 		}
 	}
 	if pattern[0] == '[' {
@@ -32,7 +32,7 @@ func matchDigit(line []byte) (bool, error) {
 	return ok, nil
 }
 
-func matchAlphanumeric(line []byte, pattern string) (bool, error) {
+func matchAlphanumeric(line []byte) (bool, error) {
 	ok := false
 
 	for _, l := range line {

@@ -7,8 +7,8 @@ import (
 // Usage: echo <input_text> | your_program.sh -E <pattern>
 func main() {
 	line, pattern := readLineBoilerplate()
-	// line := []byte("aaaa")
-	// pattern := "a+"
+	// line := []byte("sally has 1 dog")
+	// pattern := "\\d \\w\\w\\ws"
 	ok := doGrep(line, pattern)
 	exitOnError(ok)
 	os.Exit(0)
@@ -29,11 +29,7 @@ func doGrep(line []byte, pattern string) bool {
 		handleGenericError(err)
 		return ok
 	}
-	patLength := patternLength(pattern)
 	for idx, l := range line {
-		if patLength > len(line)-idx {
-			return false
-		}
 		match, err := match([]byte{l}, pattern)
 		handleGenericError(err)
 		if match {
@@ -52,6 +48,13 @@ func matchMultipleCharacterClasses(line []byte, pattern string) (bool, error) {
 	var err error
 	lineCounter := 0
 	for i := 0; i < len(pattern); {
+		if len(line) <= lineCounter { // dog, dogs?
+			if i+2 <= len(pattern) && pattern[i+1] == '?' {
+				return true, nil
+			} else {
+				return false, nil
+			}
+		}
 		char := []byte{line[lineCounter]}
 		pat := ""
 		if pattern[i] == '\\' {
@@ -73,19 +76,30 @@ func matchMultipleCharacterClasses(line []byte, pattern string) (bool, error) {
 		}
 		if i < len(pattern) && pattern[i] == '+' { //match one or more quantifier
 			i++
+			matchedAtLeastOnce := false
 			for lineCounter < len(line) {
 				char := []byte{line[lineCounter]}
 				ok, err = match(char, pat)
 				handleGenericError(err)
 				if !ok {
-					break
+					if matchedAtLeastOnce {
+						break
+					} else {
+						exitOnError(false)
+					}
 				} else {
+					matchedAtLeastOnce = true
 					lineCounter++
 				}
 			}
-			if lineCounter == len(line) {
-				ok = true
+		} else if i < len(pattern) && pattern[i] == '?' { // match zero or one times
+			i++
+			char := []byte{line[lineCounter]}
+			ok, err = match(char, pat)
+			if ok {
+				lineCounter++
 			}
+			handleGenericError(err)
 		} else {
 			ok, err = match(char, pat)
 			if !ok {
@@ -95,5 +109,5 @@ func matchMultipleCharacterClasses(line []byte, pattern string) (bool, error) {
 			lineCounter++
 		}
 	}
-	return ok, nil
+	return true, nil
 }
