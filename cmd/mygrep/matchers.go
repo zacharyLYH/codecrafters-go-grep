@@ -16,6 +16,9 @@ func match(line []byte, pattern string) (bool, error) {
 	if pattern[0] == '[' {
 		return matchCharacterGroup(line, pattern[1:])
 	}
+	if pattern[0] == '.' {
+		return true, nil
+	}
 	return matchLine(line, pattern)
 }
 
