@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"os"
+	"strings"
 )
 
 // Usage: echo <input_text> | your_program.sh -E <pattern>
@@ -57,7 +59,41 @@ func matchMultipleCharacterClasses(line []byte, pattern string) (bool, error) {
 		}
 		char := []byte{line[lineCounter]}
 		pat := ""
-		if pattern[i] == '\\' {
+		if pattern[i] == '(' {
+			startIdx := i
+			stack := []int{i}
+			for i < len(pattern) {
+				i++
+				if i < len(pattern) && pattern[i] == '(' {
+					stack = append(stack, i)
+				} else if i < len(pattern) && pattern[i] == ')' {
+					stack = stack[:len(stack)-1]
+					if len(stack) == 0 {
+						pat = pattern[startIdx+1 : i]
+						i++
+						break
+					}
+				}
+			}
+			if len(stack) > 0 {
+				return false, fmt.Errorf("unmatched parentheses in pattern")
+			}
+			options := strings.Split(pat, "|") // Split the group content by '|'
+			groupMatched := false
+			for _, option := range options {
+				ok, err := matchMultipleCharacterClasses(line[lineCounter:], option)
+				handleGenericError(err)
+				if ok {
+					groupMatched = true
+					lineCounter += len(option)
+					break
+				}
+			}
+			if !groupMatched {
+				return false, nil
+			}
+			continue
+		} else if pattern[i] == '\\' {
 			pat = pattern[i : i+2]
 			i += 2
 		} else if pattern[i] == '[' {
