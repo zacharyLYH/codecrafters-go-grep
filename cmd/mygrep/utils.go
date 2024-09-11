@@ -49,7 +49,7 @@ func patternLength(pattern string) int {
 		if p == '[' {
 			inBracket = true // Enter bracketed class
 			length++         // Increment length for the entire class
-		} else if p != '\\' {
+		} else if p != '\\' && p != '+' {
 			length++ // Increment length for non-special characters
 		}
 	}

@@ -7,8 +7,8 @@ import (
 // Usage: echo <input_text> | your_program.sh -E <pattern>
 func main() {
 	line, pattern := readLineBoilerplate()
-	// line := []byte("log")
-	// pattern := "^log"
+	// line := []byte("aaaa")
+	// pattern := "a+"
 	ok := doGrep(line, pattern)
 	exitOnError(ok)
 	os.Exit(0)
@@ -71,12 +71,29 @@ func matchMultipleCharacterClasses(line []byte, pattern string) (bool, error) {
 			pat = string(pattern[i])
 			i++
 		}
-		ok, err = match(char, pat)
-		if !ok {
-			return false, nil
+		if i < len(pattern) && pattern[i] == '+' { //match one or more quantifier
+			i++
+			for lineCounter < len(line) {
+				char := []byte{line[lineCounter]}
+				ok, err = match(char, pat)
+				handleGenericError(err)
+				if !ok {
+					break
+				} else {
+					lineCounter++
+				}
+			}
+			if lineCounter == len(line) {
+				ok = true
+			}
+		} else {
+			ok, err = match(char, pat)
+			if !ok {
+				return false, nil
+			}
+			handleGenericError(err)
+			lineCounter++
 		}
-		handleGenericError(err)
-		lineCounter++
 	}
 	return ok, nil
 }
