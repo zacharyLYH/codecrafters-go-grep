@@ -36,9 +36,23 @@ func readLineBoilerplate() ([]byte, string) {
 	return line, pattern
 }
 
-func startsAndEndsWith(s string, start, end rune) bool {
-	if len(s) < 2 {
-		return false
+func patternLength(pattern string) int {
+	length := 0
+	inBracket := false
+	for _, p := range pattern {
+		if inBracket {
+			if p == ']' {
+				inBracket = false // Exit bracketed class
+			}
+			continue // Skip everything inside brackets
+		}
+		if p == '[' {
+			inBracket = true // Enter bracketed class
+			length++         // Increment length for the entire class
+		} else if p != '\\' {
+			length++ // Increment length for non-special characters
+		}
 	}
-	return rune(s[0]) == start && rune(s[len(s)-1]) == end
+
+	return length
 }
