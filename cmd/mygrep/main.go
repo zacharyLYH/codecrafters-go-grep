@@ -14,7 +14,12 @@ func main() {
 	} else if pattern == "\\w" {
 		ok, err = matchAlphanumeric(line, pattern)
 	} else if startsAndEndsWith(pattern, '[', ']') {
-		ok, err = matchCharacterGroup(line, pattern[1:len(pattern)-1])
+		if pattern[1] == '^' { //negative character group
+			ok, err = matchCharacterGroup(line, pattern[2:len(pattern)-1])
+			ok = !ok
+		} else {
+			ok, err = matchCharacterGroup(line, pattern[1:len(pattern)-1])
+		}
 	} else {
 		ok, err = matchLine(line, pattern)
 	}
